@@ -23,8 +23,8 @@ interface Props {
 
 const statusLabel: Record<CallStatus, string> = {
   idle: 'Ready to dial',
-  dialing: 'Connecting...',
-  ringing: 'Ringing...',
+  dialing: 'Calling your phone...',
+  ringing: 'Your phone is ringing — answer to connect lead',
   connected: 'Connected',
   ended: 'Call ended',
   no_answer: 'No answer',

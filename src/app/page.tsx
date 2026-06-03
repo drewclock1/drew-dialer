@@ -89,6 +89,7 @@ export default function DialerPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           to: normalizePhone(lead.phone),
+          leadName: lead.name,
           webhookUrl: `${window.location.origin}/api/webhooks/telnyx`
         })
       })
