@@ -26,6 +26,7 @@ export default function DialerPage() {
   const [showImporter, setShowImporter] = useState(false)
   const [predictiveActive, setPredictiveActive] = useState<Lead[]>([])
   const [callStartTime, setCallStartTime] = useState<Date | null>(null)
+  const [demoMode, setDemoMode] = useState(false)
 
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const dialerRef = useRef<NodeJS.Timeout | null>(null)
@@ -93,14 +94,16 @@ export default function DialerPage() {
       })
       const data = await res.json()
       if (data?.data?.call_control_id) {
+        setDemoMode(false)
         setActiveCallId(data.data.call_control_id)
         setCallStatus('ringing')
         startPolling(data.data.call_control_id)
       } else {
-        // Simulate for testing without live Telnyx
+        // Telnyx not yet configured — demo mode
+        setDemoMode(true)
         setCallStatus('ringing')
         setTimeout(() => {
-          const answered = Math.random() > 0.4
+          const answered = Math.random() > 0.45
           if (answered) {
             setCallStatus('connected')
             setCallStartTime(new Date())
@@ -108,13 +111,13 @@ export default function DialerPage() {
           } else {
             handleCallEnded('no_answer')
           }
-        }, 3000 + Math.random() * 4000)
+        }, 2000 + Math.random() * 3000)
       }
     } catch {
-      // Demo mode if API not connected
+      setDemoMode(true)
       setCallStatus('ringing')
       setTimeout(() => {
-        const answered = Math.random() > 0.4
+        const answered = Math.random() > 0.45
         if (answered) {
           setCallStatus('connected')
           setCallStartTime(new Date())
@@ -286,6 +289,14 @@ export default function DialerPage() {
         </div>
       </div>
 
+      {/* Demo mode warning */}
+      {demoMode && (
+        <div className="bg-yellow-500/10 border-b border-yellow-500/20 px-6 py-2 flex items-center gap-2 text-xs text-yellow-400">
+          <span>⚠️</span>
+          <span><strong>Demo Mode</strong> — Calls are simulated. Add your Telnyx API key to make real calls.</span>
+        </div>
+      )}
+
       {/* Stats Bar */}
       <StatsBar stats={stats} />
 
@@ -301,7 +312,18 @@ export default function DialerPage() {
               + Import
             </button>
           </div>
-          <QueuePanel queue={queue} currentLead={currentLead} />
+          <QueuePanel
+            queue={queue}
+            currentLead={currentLead}
+            onCallLead={(lead) => {
+              // If already on a call, don't allow
+              if (callStatus === 'connected' || callStatus === 'ringing' || callStatus === 'dialing') return
+              // Reset to pending so it dials cleanly
+              setQueue(q => q.map(l => l.id === lead.id ? { ...l, status: 'pending' } : l))
+              dialLead({ ...lead, status: 'pending' })
+            }}
+            isOnCall={callStatus === 'connected' || callStatus === 'ringing' || callStatus === 'dialing'}
+          />
         </div>
 
         {/* Center: Active Call */}
