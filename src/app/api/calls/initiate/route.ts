@@ -1,14 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getTelnyxConfig } from '@/lib/config'
 
 export async function POST(req: NextRequest) {
   try {
     const { to, webhookUrl } = await req.json()
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || ''
+    const { apiKey, connectionId, fromNumber } = await getTelnyxConfig()
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://xf3cx7fixq5oqh8b7kbpzy11.5.78.228.49.sslip.io'
+
+    if (!apiKey || !connectionId) {
+      return NextResponse.json({ error: 'Telnyx not configured' }, { status: 503 })
+    }
 
     const body = {
-      connection_id: process.env.TELNYX_CONNECTION_ID,
+      connection_id: connectionId,
       to,
-      from: process.env.TELNYX_FROM_NUMBER || '+19282910777',
+      from: fromNumber,
       webhook_url: webhookUrl || `${appUrl}/api/webhooks/telnyx`,
       webhook_url_method: 'POST',
       answering_machine_detection: 'detect_words',
@@ -27,7 +33,7 @@ export async function POST(req: NextRequest) {
     const res = await fetch('https://api.telnyx.com/v2/calls', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.TELNYX_API_KEY}`,
+        'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(body)
