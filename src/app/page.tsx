@@ -157,6 +157,22 @@ export default function DialerPage() {
         }
         setLogs(l => [log, ...l])
         setQueue(q => q.map(l => l.id === prev.id ? { ...l, status: outcome, attempts: l.attempts + 1 } : l))
+
+        // Sync outcome back to Google Sheet
+        fetch('/api/sheets/update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            phone: prev.phone,
+            leadName: prev.name,
+            outcome,
+            notes,
+            sheetId: prev.sheet_id,
+            sheetGid: prev.sheet_gid,
+            sheetRow: prev.sheet_row,
+            timestamp: new Date().toISOString(),
+          })
+        }).catch(() => {})
       }
       return prev
     })

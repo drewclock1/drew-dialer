@@ -26,7 +26,7 @@ export default function LeadImporter({ onImport, onClose }: Props) {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const toLeads = (raw: { name: string; phone: string; email?: string; company?: string }[]): Lead[] =>
+  const toLeads = (raw: any[]): Lead[] =>
     raw.map(l => ({
       id: uuidv4(),
       name: l.name,
@@ -34,7 +34,10 @@ export default function LeadImporter({ onImport, onClose }: Props) {
       email: l.email || '',
       company: l.company || '',
       status: 'pending' as const,
-      attempts: 0
+      attempts: 0,
+      sheet_id: l._sheetId,
+      sheet_gid: l._sheetGid,
+      sheet_row: l._sheetRow,
     }))
 
   const parseCsv = (text: string) => {

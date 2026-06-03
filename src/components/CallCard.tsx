@@ -120,9 +120,19 @@ export default function CallCard({
         {/* Outcome buttons - only when connected */}
         {isConnected && (
           <div className="grid grid-cols-3 gap-2 mb-4">
-            <OutcomeBtn label="✅ Converted" onClick={() => onOutcome('converted')} color="bg-green-600 hover:bg-green-700" />
-            <OutcomeBtn label="📅 Callback" onClick={() => onOutcome('callback')} color="bg-blue-600 hover:bg-blue-700" />
-            <OutcomeBtn label="❌ Not Interested" onClick={() => onOutcome('not_interested')} color="bg-gray-600 hover:bg-gray-700" />
+            <OutcomeBtn label="✅ Closed" onClick={() => onOutcome('converted')} color="bg-green-600 hover:bg-green-700" />
+            <OutcomeBtn label="📅 Appointment" onClick={() => onOutcome('appointment')} color="bg-emerald-600 hover:bg-emerald-700" />
+            <OutcomeBtn label="🔄 Callback" onClick={() => onOutcome('callback')} color="bg-blue-600 hover:bg-blue-700" />
+            <OutcomeBtn label="📵 Hung Up" onClick={() => onOutcome('hung_up')} color="bg-gray-600 hover:bg-gray-700" />
+            <OutcomeBtn label="🚫 Not Interested" onClick={() => onOutcome('not_interested')} color="bg-red-700 hover:bg-red-800" />
+            <OutcomeBtn label="❓ Invalid #" onClick={() => onOutcome('invalid_number')} color="bg-orange-700 hover:bg-orange-800" />
+          </div>
+        )}
+        {/* Quick outcomes when ringing (no answer / voicemail) */}
+        {callStatus === 'ringing' && (
+          <div className="grid grid-cols-2 gap-2 mb-4">
+            <OutcomeBtn label="📬 Voicemail" onClick={() => onOutcome('voicemail')} color="bg-yellow-600 hover:bg-yellow-700" />
+            <OutcomeBtn label="📵 No Answer" onClick={() => onOutcome('no_answer')} color="bg-gray-600 hover:bg-gray-700" />
           </div>
         )}
 

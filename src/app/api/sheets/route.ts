@@ -23,7 +23,7 @@ function parseCsvToLeads(csv: string) {
     h.trim().replace(/^"|"$/g, '').toLowerCase()
   )
 
-  return lines.slice(1).map(line => {
+  return lines.slice(1).map((line, lineIndex) => {
     // Handle quoted fields with commas inside
     const vals: string[] = []
     let current = ''
@@ -50,6 +50,7 @@ function parseCsvToLeads(csv: string) {
       phone: phone.trim(),
       email: obj['email'] || obj['email address'] || obj['email_address'] || '',
       company: obj['company'] || obj['organization'] || obj['business'] || obj['employer'] || '',
+      _sheetRow: lineIndex + 2, // row 1 = headers, data starts at row 2
     }
   }).filter(l => l.phone && l.phone.replace(/\D/g, '').length >= 10)
 }
@@ -82,14 +83,16 @@ export async function POST(req: NextRequest) {
 
     const csv = await res.text()
     const leads = parseCsvToLeads(csv)
+    // Attach sheet metadata to each lead
+    const leadsWithMeta = leads.map(l => ({ ...l, _sheetId: parsed.sheetId, _sheetGid: parsed.gid }))
 
-    if (leads.length === 0) {
+    if (leadsWithMeta.length === 0) {
       return NextResponse.json({
         error: 'No valid leads found. Make sure your sheet has Phone and Name columns.'
       }, { status: 400 })
     }
 
-    return NextResponse.json({ leads, total: leads.length })
+    return NextResponse.json({ leads: leadsWithMeta, total: leadsWithMeta.length })
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })
   }

@@ -1,6 +1,6 @@
 export type DialerMode = 'auto' | 'predictive'
 export type CallStatus = 'idle' | 'dialing' | 'ringing' | 'connected' | 'ended' | 'no_answer' | 'voicemail' | 'busy' | 'failed'
-export type LeadStatus = 'pending' | 'dialing' | 'answered' | 'no_answer' | 'voicemail' | 'callback' | 'not_interested' | 'converted' | 'busy'
+export type LeadStatus = 'pending' | 'dialing' | 'answered' | 'no_answer' | 'voicemail' | 'callback' | 'not_interested' | 'converted' | 'appointment' | 'invalid_number' | 'hung_up' | 'busy'
 export type AgentStatus = 'offline' | 'ready' | 'on_call' | 'paused' | 'wrap_up'
 
 export interface Lead {
@@ -15,6 +15,10 @@ export interface Lead {
   last_called?: string
   callback_time?: string
   campaign_id?: string
+  // Google Sheets tracking
+  sheet_id?: string
+  sheet_gid?: string
+  sheet_row?: number
 }
 
 export interface Campaign {
